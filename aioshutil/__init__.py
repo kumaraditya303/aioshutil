@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Asynchronous version of functions of shutil module.
+Asynchronous shutil module.
 """
 import asyncio
 import shutil

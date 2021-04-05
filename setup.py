@@ -8,7 +8,7 @@ setup(
     author="Kumar Aditya",
     author_email="",
     url="https://github.com/kumaraditya303/aioshutil",
-    description="Asynchronous version of functions of shutil module.",
+    description="Asynchronous shutil module.",
     keywords=["asyncio", "io", "shutil"],
     long_description=Path("README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
