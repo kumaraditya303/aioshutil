@@ -1,6 +1,6 @@
 # aioshutil: Asynchronous shutil module.
 
-![](https://img.shields.io/pypi/dm/aioshutil) ![](https://img.shields.io/pypi/v/aioshutil) ![](https://img.shields.io/pypi/l/aioshutil) ![](https://img.shields.io/pypi/pyversions/aioshutil) ![](https://img.shields.io/pypi/implementation/aioshutil)
+[![Downloads](https://pepy.tech/badge/aioshutil)](https://pepy.tech/project/aioshutil) ![](https://img.shields.io/pypi/v/aioshutil)  ![](https://img.shields.io/pypi/pyversions/aioshutil) ![](https://img.shields.io/pypi/implementation/aioshutil)
 
 # Introduction
 
