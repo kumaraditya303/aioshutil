@@ -48,7 +48,9 @@ async def test_copystat(tmp_path: Path):
 
 async def test_copy(tmp_path: Path):
     tmp_path.joinpath("temp.txt").write_text("Hello World!", encoding="utf-8")
-    tmp_path.joinpath("temp.txt").chmod(stat.S_IEXEC)
+    tmp_path.joinpath("temp.txt").chmod(
+        tmp_path.joinpath("temp.txt").stat().st_mode | stat.S_IEXEC
+    )
     await aioshutil.copy(tmp_path.joinpath("temp.txt"), tmp_path.joinpath("temp1.txt"))
     assert (
         tmp_path.joinpath("temp1.txt").stat().st_mode
@@ -58,7 +60,9 @@ async def test_copy(tmp_path: Path):
 
 async def test_copy2(tmp_path: Path):
     tmp_path.joinpath("temp.txt").write_text("Hello World!", encoding="utf-8")
-    tmp_path.joinpath("temp.txt").chmod(stat.S_IEXEC)
+    tmp_path.joinpath("temp.txt").chmod(
+        tmp_path.joinpath("temp.txt").stat().st_mode | stat.S_IEXEC
+    )
     await aioshutil.copy2(tmp_path.joinpath("temp.txt"), tmp_path.joinpath("temp1.txt"))
     assert (
         tmp_path.joinpath("temp1.txt").stat().st_atime
