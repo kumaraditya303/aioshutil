@@ -5,6 +5,7 @@ Asynchronous shutil module.
 import asyncio
 import shutil
 from functools import partial, wraps
+from typing import Any, Awaitable, Callable, TypeVar, cast
 
 __all__ = [
     "copyfileobj",
@@ -34,15 +35,17 @@ __all__ = [
     "SameFileError",
 ]
 
+T = TypeVar("T", bound=Callable[..., Any])
 
-def sync_to_async(func):
+
+def sync_to_async(func: T):
     @wraps(func)
     async def run_in_executor(*args, **kwargs):
         loop = asyncio.get_event_loop()
         pfunc = partial(func, *args, **kwargs)
         return await loop.run_in_executor(None, pfunc)
 
-    return run_in_executor
+    return cast(Awaitable[T], run_in_executor)
 
 
 rmtree = sync_to_async(shutil.rmtree)
