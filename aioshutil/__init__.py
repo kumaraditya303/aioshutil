@@ -75,6 +75,6 @@ get_terminal_size = sync_to_async(shutil.get_terminal_size)
 SameFileError = shutil.SameFileError
 
 
-if hasattr(shutil, "statvfs"):  # pragma: no cover
+if "disk_usage" in shutil.__all__:  # pragma: no cover
     __all__.append("disk_usage")
     disk_usage = sync_to_async(shutil.disk_usage)
