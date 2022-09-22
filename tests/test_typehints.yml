@@ -1,0 +1,16 @@
+- case: decorator_produces_coroutine
+  regex: yes
+  main: |
+    from aioshutil import rmtree
+    reveal_type(rmtree)
+  out: |
+    main:2: note: Revealed type is "def \(.*?\) -> typing\.Coroutine\[Any, Any, \w+\]"
+  skip: sys.version_info < (3, 10)
+- case: copy_overload_typehint
+  regex: yes
+  main: |
+    from aioshutil import copy
+    reveal_type(copy)
+  out: |
+    main:2: note: Revealed type is "Overload\(def \(.*\) -> typing\.Coroutine\[Any, Any, \w+\], def \(.*\) -> typing\.Coroutine\[Any, Any, \w+\]\)"
+  skip: sys.version_info < (3, 10)
