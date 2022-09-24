@@ -34,4 +34,5 @@ setup(
         "License :: OSI Approved :: BSD License",
     ],
     setup_requires=["setuptools_scm"],
+    install_requires=["typing-extensions;python_version<'3.10'"],
 )
