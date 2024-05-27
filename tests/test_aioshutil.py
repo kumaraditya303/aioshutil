@@ -4,7 +4,11 @@ import os
 import stat
 from pathlib import Path
 
+import pytest
+
 import aioshutil
+
+pytestmark = [pytest.mark.asyncio]
 
 
 async def test_copyfileobj(tmp_path: Path):
