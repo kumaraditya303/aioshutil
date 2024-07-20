@@ -6,7 +6,7 @@ from setuptools import setup
 setup(
     name="aioshutil",
     author="Kumar Aditya",
-    author_email="",
+    author_email="kumaraditya@python.org",
     url="https://github.com/kumaraditya303/aioshutil",
     description="Asynchronous shutil module.",
     keywords=["asyncio", "io", "shutil"],
@@ -28,6 +28,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
