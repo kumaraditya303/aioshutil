@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.12", "3.13-dev"]
+        python-version: ["3.9", "3.13", "3.14-dev"]
         os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
@@ -28,7 +28,7 @@ jobs:
           pip install -e.
           pip install -r requirements.txt
       - name: Lint
-        uses: pre-commit/action@v2.0.0
+        uses: pre-commit/action@v3.0.1
       - name: Test with Pytest
         run: pytest
       - name: Upload Coverage Report
