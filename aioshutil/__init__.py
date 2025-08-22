@@ -2,6 +2,7 @@
 """
 Asynchronous shutil module.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -17,7 +18,10 @@ from typing import (
     TypeVar,
     Union,
     overload,
+    Iterable,
 )
+from types import TracebackType
+import os
 
 try:
     from typing import ParamSpec, TypeAlias  # type: ignore
@@ -190,7 +194,49 @@ def sync_to_async(func: Callable[P, R]) -> Callable[P, Coroutine[Any, Any, R]]:
     return run_in_executor
 
 
-rmtree = sync_to_async(shutil.rmtree)
+def run_threadsafe(func: Callable[P, Coroutine[Any, Any, None]]) -> Callable[P, None]:
+    """Makes an asynchronous callback that is running from another thread by calling it
+    back to the main-thread making the callback threadsafe"""
+    # Keep eventloop alive
+    loop = asyncio.get_event_loop()
+
+    @wraps(func)
+    def wrapper(*args: P.args, **kw: P.kwargs) -> None:
+        nonlocal loop
+
+        def on_threadsafe(args, kw) -> None:
+            asyncio.ensure_future(func(*args, **kw))
+
+        # we're still in a different thread so we need to callback as a task
+        # threadsafe as a fire-and-forget method
+        loop.call_soon_threadsafe(on_threadsafe, args, kw)
+
+    return wrapper
+
+
+_rmtree = sync_to_async(shutil.rmtree)
+
+
+async def rmtree(
+    path: StrOrBytesPath,
+    ignore_errors: bool = False,
+    onerror: Optional[
+        Callable[
+            [
+                Callable[..., None],
+                str,
+                Optional[tuple[type[BaseException], BaseException, TracebackType]],
+                object,
+            ],
+            Coroutine[Any, Any, None],
+        ]
+    ] = None,
+) -> Coroutine[Any, Any, None]:
+    return await _rmtree(
+        path, ignore_errors, run_threadsafe(onerror) if onerror else None
+    )
+
+
 copyfile = sync_to_async(shutil.copyfile)
 copyfileobj = sync_to_async(shutil.copyfileobj)
 copymode = sync_to_async(shutil.copymode)
