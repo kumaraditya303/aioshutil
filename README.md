@@ -49,5 +49,4 @@ await rmtree("/tmp")
 
 - `Error`
 - `SpecialFileError`
-- `ExecError`
 - `SameFileError`
