@@ -37,7 +37,6 @@ __all__ = [
     "rmtree",
     "Error",
     "SpecialFileError",
-    "ExecError",
     "make_archive",
     "get_archive_formats",
     "register_archive_format",
@@ -201,7 +200,6 @@ copytree = sync_to_async(shutil.copytree)
 move = sync_to_async(shutil.move)
 Error = shutil.Error
 SpecialFileError = shutil.SpecialFileError
-ExecError = shutil.ExecError
 make_archive = sync_to_async(shutil.make_archive)
 get_archive_formats = sync_to_async(shutil.get_archive_formats)
 register_archive_format = sync_to_async(shutil.register_archive_format)  # type: ignore # noqa: F811
