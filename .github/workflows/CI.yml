@@ -24,8 +24,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: uv sync --locked
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
       - name: Lint
-        uses: pre-commit/action@v3.0.1
+        run: uv run pre-commit run --all-files --show-diff-on-failure
       - name: Test with Pytest
         run: uv run pytest
       - name: Upload Coverage Report
