@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=77", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aioshutil"
+description = "Asynchronous shutil module."
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE.md"]
+authors = [{ name = "Kumar Aditya", email = "kumaraditya@python.org" }]
+keywords = ["asyncio", "io", "shutil"]
+requires-python = ">=3.9"
+dependencies = ["typing-extensions; python_version < '3.10'"]
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: AsyncIO",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/kumaraditya303/aioshutil"
+Repository = "https://github.com/kumaraditya303/aioshutil"
+
+[dependency-groups]
+dev = ["pre-commit", "pytest", "pytest-asyncio", "pytest-cov"]
+
+[tool.setuptools]
+packages = ["aioshutil"]
+
+[tool.setuptools.package-data]
+aioshutil = ["py.typed"]
+
+[tool.setuptools_scm]
+
+[tool.pytest.ini_options]
+addopts = "-rsx -vv --cov aioshutil --cov-report xml"
+testpaths = ["tests"]
+
+[tool.ruff.lint]
+# pyflakes + pycodestyle errors, mirroring the previous flake8 configuration
+select = ["E4", "E7", "E9", "F"]
+
+[tool.isort]
+profile = "black"

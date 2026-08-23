@@ -13,9 +13,10 @@ pytestmark = [pytest.mark.asyncio]
 
 async def test_copyfileobj(tmp_path: Path):
     (tmp_path / "temp.txt").write_text("Hello World!", encoding="utf-8")
-    with open(tmp_path / "temp.txt", "r") as fsrc, open(
-        tmp_path / "temp1.txt", "w"
-    ) as fdst:
+    with (
+        open(tmp_path / "temp.txt", "r") as fsrc,
+        open(tmp_path / "temp1.txt", "w") as fdst,
+    ):
         await aioshutil.copyfileobj(fsrc, fdst)
     assert (tmp_path / "temp1.txt").read_text() == "Hello World!"
 
