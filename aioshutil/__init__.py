@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import shutil
+import sys
 from functools import partial, wraps
 from typing import (
     TYPE_CHECKING,
@@ -19,10 +20,9 @@ from typing import (
     overload,
 )
 
-try:
-    from typing import ParamSpec, TypeAlias  # type: ignore
-except ImportError:
-    # Python versions < 3.10
+if sys.version_info >= (3, 10):
+    from typing import ParamSpec, TypeAlias
+else:
     from typing_extensions import ParamSpec, TypeAlias
 
 __all__ = [
@@ -59,14 +59,47 @@ if TYPE_CHECKING:  # pragma: no cover
     # type hints for wrapped functions with overloads (which are incompatible
     # with ParamSpec).
 
-    import sys
     from os import PathLike
 
     StrPath: TypeAlias = Union[str, PathLike[str]]
     BytesPath: TypeAlias = Union[bytes, PathLike[bytes]]
     StrOrBytesPath: TypeAlias = Union[str, bytes, PathLike[str], PathLike[bytes]]
+    FileDescriptorOrPath: TypeAlias = Union[int, StrOrBytesPath]
     _PathReturn: TypeAlias = Any
     _StrPathT = TypeVar("_StrPathT", bound=StrPath)
+    _OnErrorCallback: TypeAlias = Callable[[Callable[..., Any], str, Any], object]
+    _OnExcCallback: TypeAlias = Callable[
+        [Callable[..., Any], str, BaseException], object
+    ]
+
+    if sys.version_info >= (3, 12):
+
+        async def rmtree(
+            path: StrOrBytesPath,
+            ignore_errors: bool = ...,
+            onerror: Optional[_OnErrorCallback] = ...,
+            *,
+            onexc: Optional[_OnExcCallback] = ...,
+            dir_fd: Optional[int] = ...,
+        ) -> None: ...
+
+    elif sys.version_info >= (3, 11):
+
+        async def rmtree(
+            path: StrOrBytesPath,
+            ignore_errors: bool = ...,
+            onerror: Optional[_OnErrorCallback] = ...,
+            *,
+            dir_fd: Optional[int] = ...,
+        ) -> None: ...
+
+    else:
+
+        async def rmtree(
+            path: StrOrBytesPath,
+            ignore_errors: bool = ...,
+            onerror: Optional[_OnErrorCallback] = ...,
+        ) -> None: ...
 
     @overload
     async def copy(
@@ -134,27 +167,75 @@ if TYPE_CHECKING:  # pragma: no cover
         name, extensions, function, extra_args=..., description=...
     ): ...
 
-    @overload
-    async def chown(
-        path: StrOrBytesPath, user: Union[str, int], group: None = ...
-    ) -> None: ...
+    if sys.version_info >= (3, 13):
 
-    @overload
-    async def chown(
-        path: StrOrBytesPath, user: None = ..., *, group: Union[str, int]
-    ) -> None: ...
+        @overload
+        async def chown(
+            path: FileDescriptorOrPath,
+            user: Union[str, int],
+            group: None = ...,
+            *,
+            dir_fd: Optional[int] = ...,
+            follow_symlinks: bool = ...,
+        ) -> None: ...
 
-    @overload
-    async def chown(
-        path: StrOrBytesPath, user: None, group: Union[str, int]
-    ) -> None: ...
+        @overload
+        async def chown(
+            path: FileDescriptorOrPath,
+            user: None = ...,
+            *,
+            group: Union[str, int],
+            dir_fd: Optional[int] = ...,
+            follow_symlinks: bool = ...,
+        ) -> None: ...
 
-    @overload
-    async def chown(
-        path: StrOrBytesPath, user: Union[str, int], group: Union[str, int]
-    ) -> None: ...
+        @overload
+        async def chown(
+            path: FileDescriptorOrPath,
+            user: None,
+            group: Union[str, int],
+            *,
+            dir_fd: Optional[int] = ...,
+            follow_symlinks: bool = ...,
+        ) -> None: ...
 
-    async def chown(path, user=..., group=...): ...
+        @overload
+        async def chown(
+            path: FileDescriptorOrPath,
+            user: Union[str, int],
+            group: Union[str, int],
+            *,
+            dir_fd: Optional[int] = ...,
+            follow_symlinks: bool = ...,
+        ) -> None: ...
+
+        async def chown(
+            path, user=..., group=..., *, dir_fd=..., follow_symlinks=...
+        ): ...
+
+    else:
+
+        @overload
+        async def chown(
+            path: FileDescriptorOrPath, user: Union[str, int], group: None = ...
+        ) -> None: ...
+
+        @overload
+        async def chown(
+            path: FileDescriptorOrPath, user: None = ..., *, group: Union[str, int]
+        ) -> None: ...
+
+        @overload
+        async def chown(
+            path: FileDescriptorOrPath, user: None, group: Union[str, int]
+        ) -> None: ...
+
+        @overload
+        async def chown(
+            path: FileDescriptorOrPath, user: Union[str, int], group: Union[str, int]
+        ) -> None: ...
+
+        async def chown(path, user=..., group=...): ...
 
     if sys.version_info >= (3, 8):
 
@@ -189,7 +270,7 @@ def sync_to_async(func: Callable[P, R]) -> Callable[P, Coroutine[Any, Any, R]]:
     return run_in_executor
 
 
-rmtree = sync_to_async(shutil.rmtree)
+rmtree = sync_to_async(shutil.rmtree)  # type: ignore # noqa: F811
 copyfile = sync_to_async(shutil.copyfile)
 copyfileobj = sync_to_async(shutil.copyfileobj)
 copymode = sync_to_async(shutil.copymode)
