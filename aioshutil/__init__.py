@@ -272,7 +272,28 @@ def sync_to_async(func: Callable[P, R]) -> Callable[P, Coroutine[Any, Any, R]]:
 
 rmtree = sync_to_async(shutil.rmtree)  # type: ignore # noqa: F811
 copyfile = sync_to_async(shutil.copyfile)
-copyfileobj = sync_to_async(shutil.copyfileobj)
+async def copyfileobj(fsrc, fdst, length=16 * 1024):
+    """Copy data from file-like object fsrc to file-like object fdst.
+
+    Async file handles (e.g. from aiofiles or aiopath) are driven
+    directly: their read/write return coroutines, which a thread-pool
+    copy of shutil.copyfileobj can neither await nor pass through.
+    """
+    read = fsrc.read
+    write = fdst.write
+    if asyncio.iscoroutinefunction(read) or asyncio.iscoroutinefunction(write):
+        while True:
+            buf = read(length)
+            if asyncio.iscoroutine(buf):
+                buf = await buf
+            if not buf:
+                break
+            result = write(buf)
+            if asyncio.iscoroutine(result):
+                await result
+        return
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, partial(shutil.copyfileobj, fsrc, fdst, length))
 copymode = sync_to_async(shutil.copymode)
 copystat = sync_to_async(shutil.copystat)
 copy = sync_to_async(shutil.copy)  # type: ignore # noqa: F811
