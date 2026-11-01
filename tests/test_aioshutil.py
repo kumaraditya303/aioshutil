@@ -21,6 +21,32 @@ async def test_copyfileobj(tmp_path: Path):
     assert (tmp_path / "temp1.txt").read_text() == "Hello World!"
 
 
+class _AsyncBytesIO:
+    """Minimal async file handle (read/write are coroutines)."""
+
+    def __init__(self, data: bytes = b"") -> None:
+        import io
+
+        self._read = io.BytesIO(data)
+        self._written = io.BytesIO()
+
+    async def read(self, n: int = -1) -> bytes:
+        return self._read.read(n)
+
+    async def write(self, data: bytes) -> int:
+        return self._written.write(data)
+
+    def getvalue(self) -> bytes:
+        return self._written.getvalue()
+
+
+async def test_copyfileobj_async_handles():
+    src = _AsyncBytesIO(b"Hello World!")
+    dst = _AsyncBytesIO()
+    await aioshutil.copyfileobj(src, dst)
+    assert dst.getvalue() == b"Hello World!"
+
+
 async def test_copyfile(tmp_path: Path):
     (tmp_path / "temp.txt").write_text("Hello World!", encoding="utf-8")
     await aioshutil.copyfile(tmp_path / "temp.txt", tmp_path / "temp1.txt")
